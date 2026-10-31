@@ -1,0 +1,44 @@
+name: CI COB
+
+on:
+    push:
+    pull_request:
+
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   
+      contents: read
+
+    steps:
+        - name: Checkout Code
+          uses: actions/checkout@v4
+
+        - name: Configure AWS Credentials (OIDC)
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
+            aws-region: ${{ secrets.AWS_REGION }}
+
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v3
+      
+        - name: Terraform init
+          run: terraform init
+
+        - name: TerrafoVm validate
+          run: terraform validate
+    
+        - name: Terraform fmt check
+          id: fmt
+          run: terraform fmt -check -recursive
+
+        - name: Explain failure
+          if: failure() && steps.fmt.outcome == 'failure'
+          run: echo "Run 'terraform fmt -recursive' locally and commit the changes."
+
+        - name: Terraform Plan
+          run: terraform plan
+

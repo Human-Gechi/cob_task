@@ -10,11 +10,30 @@ module "standard" {
 
 
 resource "aws_s3_bucket" "main" {
-  bucket = "${modules.standard.name_prefix}-${var.name}"
+  bucket = "${module.standard.name_prefix}-${var.name}"
+  tags   = module.standard.tags
 }
 
+resource "aws_s3_bucket_versioning" "main" {
+  bucket = aws_s3_bucket.main.id
+
+  versioning_configuration {
+    status = var.versioning ? "Enabled" : "Suspended"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "main" {
+  bucket = aws_s3_bucket.main.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
 resource "aws_s3_bucket_lifecycle_configuration" "s3_cycle" {
-  bucket = aws_s3_bucket.bucket_name.id
+  bucket = aws_s3_bucket.main.id
+  count  = length(var.lifecycle_rules) > 0 ? 1 : 0
 
   dynamic "rule" {
     for_each = var.lifecycle_rules

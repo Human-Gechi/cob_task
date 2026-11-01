@@ -28,7 +28,7 @@ resource "aws_iam_role" "team" {
   assume_role_policy   = data.aws_iam_policy_document.trust.json
   max_session_duration = var.max_session_duration
 
-  tags = merge(module.standard,
+  tags = merge(module.standard.tags,
     {
       Team = each.key
   })

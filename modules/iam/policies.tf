@@ -41,9 +41,9 @@ data "aws_iam_policy_document" "team" {
 resource "aws_iam_policy" "team" {
   for_each = local.active_teams
 
-  name   = "${module.standards.name_prefix}-${each.key}-access"
+  name   = "${module.standard.name_prefix}-${each.key}-access"
   policy = data.aws_iam_policy_document.team[each.key].json
-  tags   = merge(module.standards.tags, { Team = each.key })
+  tags   = merge(module.standard.tags, { Team = each.key })
 }
 
 resource "aws_iam_role_policy_attachment" "team" {

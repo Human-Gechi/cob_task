@@ -1,5 +1,5 @@
 module "standard" {
-  source = "../standard"
+  source = "../../standard"
 
   organisation = var.organisation
   project      = var.project

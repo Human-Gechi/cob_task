@@ -68,3 +68,14 @@ variable "ami_id" {
   description = "Optional AMI id. If null, the latest Amazon Linux 2023 AMI is used."
 }
 
+variable "user_data" {
+  type        = string
+  default     = null
+  description = "Optional cloud-init / shell script run at first boot, e.g. to install and configure a web server."
+}
+
+variable "user_data_replace_on_change" {
+  type        = bool
+  default     = true
+  description = "Replace the instance when user_data changes. Keeps instances matching the code in Git."
+}

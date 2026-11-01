@@ -39,3 +39,9 @@ variable "az_count" {
     error_message = "availability zones should be either two or three never one"
   }
 }
+
+variable "enable_nat_gateway" {
+  description = "Create a NAT gateway for private subnets. Costs about 32 USD per month; set false when nothing in a private subnet needs internet access."
+  type        = bool
+  default     = true
+}

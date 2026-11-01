@@ -21,3 +21,7 @@ output "role_name" {
   description = "Name of the instance role. Attach extra policies to it if the workload needs more access."
   value       = aws_iam_role.main.name
 }
+
+output "public_ips" {
+  value = aws_instance.main_ec2[*].public_ip
+}

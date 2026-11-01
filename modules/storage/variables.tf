@@ -37,7 +37,7 @@ variable "lifecycle_rules" {
     prefix                 = optional(string, "")
     expire_days            = optional(number)
     noncurrent_expire_days = optional(number)
-    transitions = optional(list(object({
+    transition = optional(list(object({
       days          = number
       storage_class = string
     })), [])
@@ -48,7 +48,7 @@ variable "lifecycle_rules" {
   validation {
     condition = alltrue([
       for r in values(var.lifecycle_rules) :
-      r.expire_days != null || r.noncurrent_expire_days != null || length(r.transitions) > 0
+      r.expire_days != null || r.noncurrent_expire_days != null || length(r.transition) > 0
     ])
     error_message = "Each lifecycle rule needs at least one of: expire_days, noncurrent_expire_days, transitions."
   }
@@ -56,7 +56,7 @@ variable "lifecycle_rules" {
   validation {
     condition = alltrue(flatten([
       for r in values(var.lifecycle_rules) : [
-        for t in r.transitions : contains(
+        for t in r.transition : contains(
           ["STANDARD_IA", "GLACIER_IR", "GLACIER"],
           t.storage_class
         )
@@ -68,7 +68,7 @@ variable "lifecycle_rules" {
   validation {
     condition = alltrue(flatten([
       for r in values(var.lifecycle_rules) : concat(
-        [for t in r.transitions : t.days > 0],
+        [for t in r.transition : t.days > 0],
         [r.expire_days == null ? true : r.expire_days > 0]
       )
     ]))

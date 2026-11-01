@@ -1,5 +1,5 @@
 module "standard" {
-  source = "../standard"
+  source = "../../standard"
 
   organisation = var.organisation
   project      = var.project
@@ -47,28 +47,28 @@ resource "aws_security_group" "main_ec2" {
   vpc_id      = var.vpc_id
 
   egress {
+    description = "All outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress = [
-    {
-      description = "HTTP"
-      from_port   = 80
-      to_port     = 80
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    },
-    {
-      description = "HTTPS"
-      from_port   = 443
-      to_port     = 443
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  ]
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   tags = merge(module.standard.tags, { Name = "${module.standard.name_prefix}-${var.name}-ec2" })
 }
@@ -83,6 +83,14 @@ resource "aws_instance" "main_ec2" {
   vpc_security_group_ids      = [aws_security_group.main_ec2.id]
   iam_instance_profile        = aws_iam_instance_profile.main_profile.id
   associate_public_ip_address = true
+
+  user_data                   = var.user_data
+  user_data_replace_on_change = var.user_data_replace_on_change
+
+  metadata_options {
+    http_tokens   = "required" # IMDSv2 only
+    http_endpoint = "enabled"
+  }
 
   tags = merge(module.standard.tags, { Name = "${module.standard.name_prefix}-${var.name}-${count.index + 1}" })
 }

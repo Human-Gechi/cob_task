@@ -58,57 +58,63 @@ resource "aws_internet_gateway" "igw" {
 }
 
 resource "aws_eip" "nat" {
+  count  = var.enable_nat_gateway ? 1 : 0
   domain = "vpc"
 
-  tags = merge(module.standards.tags, {
-    Name = "${module.standards.name_prefix}-nat-eip"
+  tags = merge(module.standard.tags, {
+    Name = "${module.standard.name_prefix}-nat-eip"
   })
 }
 
 resource "aws_nat_gateway" "natgw" {
-  allocation_id = aws_eip.nat.id
+  count         = var.enable_nat_gateway ? 1 : 0
+  allocation_id = aws_eip.nat[0].id
   subnet_id     = aws_subnet.public_subnet[local.az_zones[0]].id
+
+  tags = merge(module.standard.tags, {
+    Name = "${module.standard.name_prefix}-natgw"
+  })
 
   depends_on = [aws_internet_gateway.igw]
 }
 
 resource "aws_route_table" "public" {
-  for_each = set(local.az_zones)
-  vpc_id   = aws_vpc.main.id
+  vpc_id = aws_vpc.main.id
 
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
 
-  tags = merge(module.standards.tags, {
-    Name = "${module.standards.name_prefix}-public-rt"
+  tags = merge(module.standard.tags, {
+    Name = "${module.standard.name_prefix}-public-rt"
   })
 }
 
 resource "aws_route_table" "private" {
-  for_each = set(local.az_zones)
-  vpc_id   = aws_vpc.main.id
+  vpc_id = aws_vpc.main.id
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.natgw.id
+  dynamic "route" {
+    for_each = var.enable_nat_gateway ? [1] : []
+    content {
+      cidr_block     = "0.0.0.0/0"
+      nat_gateway_id = aws_nat_gateway.natgw[0].id
+    }
   }
-  tags = merge(module.standards.tags, {
-    Name = "${module.standards.name_prefix}-private-rt"
+
+  tags = merge(module.standard.tags, {
+    Name = "${module.standard.name_prefix}-private-rt"
   })
 }
 
 resource "aws_route_table_association" "public" {
-  for_each       = set(local.az_zones)
+  for_each       = aws_subnet.public_subnet
   subnet_id      = each.value.id
   route_table_id = aws_route_table.public.id
-
 }
 
 resource "aws_route_table_association" "private" {
-  for_each       = set(local.az_zones)
+  for_each       = aws_subnet.private_subnet
   subnet_id      = each.value.id
   route_table_id = aws_route_table.private.id
-
 }

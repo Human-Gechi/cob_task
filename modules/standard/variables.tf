@@ -3,7 +3,7 @@ variable "organisation" {
   default = "beejan"
 
   validation {
-    condition     = can(regex("^[a-z][a-z0-9]{,20}$", var.organisation))
+    condition     = can(regex("^[a-z][a-z0-9]{1,20}$", var.organisation))
     error_message = "Organisation must contain at most 20 characters consisting of numbers and digits"
   }
 }

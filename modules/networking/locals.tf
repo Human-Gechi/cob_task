@@ -3,5 +3,5 @@ data "aws_availability_zones" "available" {
 }
 
 locals {
-    az_zones = slice(data.aws_availability_zones.available.names, 0, var.az_count)
+  az_zones = slice(data.aws_availability_zones.available.names, 0, var.az_count)
 }

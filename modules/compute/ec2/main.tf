@@ -46,7 +46,7 @@ resource "aws_security_group" "main_ec2" {
   description = "EC2 workload ${var.name}: security group rules"
   vpc_id      = var.vpc_id
 
-    egress {
+  egress {
     description = "All outbound traffic"
     from_port   = 0
     to_port     = 0
@@ -88,9 +88,9 @@ resource "aws_instance" "main_ec2" {
   user_data_replace_on_change = var.user_data_replace_on_change
 
   metadata_options {
-      http_tokens   = "required" # IMDSv2 only
-      http_endpoint = "enabled"
-    }
+    http_tokens   = "required" # IMDSv2 only
+    http_endpoint = "enabled"
+  }
 
   tags = merge(module.standard.tags, { Name = "${module.standard.name_prefix}-${var.name}-${count.index + 1}" })
 }

@@ -35,7 +35,7 @@ variable "az_count" {
   default = 2
 
   validation {
-    condition     = var.az_couunt == 2 || var.az_count == 3
+    condition     = var.az_count == 2 || var.az_count == 3
     error_message = "availability zones should be either two or three never one"
   }
 }

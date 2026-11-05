@@ -52,8 +52,8 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
 
-  tags = merge(module.standards.tags, {
-    Name = "${module.standards.name_prefix}-igw"
+  tags = merge(module.standard.tags, {
+    Name = "${module.standard.name_prefix}-igw"
   })
 }
 

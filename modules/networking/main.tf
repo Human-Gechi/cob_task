@@ -29,8 +29,8 @@ resource "aws_subnet" "public_subnet" {
   cidr_block              = cidrsubnet(var.vpc_cidr, 8, 0 + index(local.az_zones, each.key))
   map_public_ip_on_launch = true
 
-  tags = merge(module.standards.tags, {
-    Name = "${module.standards.name_prefix}-public-${each.key}"
+  tags = merge(module.standard.tags, {
+    Name = "${module.standard.name_prefix}-public-${each.key}"
     Tier = "public"
   })
 }
@@ -42,8 +42,8 @@ resource "aws_subnet" "private_subnet" {
   availability_zone = each.key
   cidr_block        = cidrsubnet(var.vpc_cidr, 8, 10 + index(local.az_zones, each.key))
 
-  tags = merge(module.standards.tags, {
-    Name = "${module.standards.name_prefix}-private-${each.key}"
+  tags = merge(module.standard.tags, {
+    Name = "${module.standard.name_prefix}-private-${each.key}"
     Tier = "private"
   })
 }
